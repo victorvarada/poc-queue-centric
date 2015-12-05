@@ -28,6 +28,7 @@ public class Worker extends Thread {
 		}
 		System.out.println(getClass().getName() + ": " + me + ", j'ai fini ma tâche.");
 		callback.call(id);
+		System.out.println(getClass().getName() + ": " + me + ", callback effectué. Fin du Thread.");
 	}
 
 	public Task getTask() {
