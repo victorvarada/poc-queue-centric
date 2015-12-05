@@ -18,14 +18,18 @@ public class Worker extends Thread {
 		me = UUID.randomUUID();
 	}
 	
-	public void run() {
-		System.out.println(getClass().getName() + ": " + me + ", je commence: " + task.getJobtype() + " - " + task.getWorkDetail());
+	public void doJob() {
 		try {
 			Thread.sleep(jobDuration);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void run() {
+		System.out.println(getClass().getName() + ": " + me + ", je commence: " + task.getJobtype() + " - " + task.getWorkDetail());
+		doJob();
 		System.out.println(getClass().getName() + ": " + me + ", j'ai fini ma tâche.");
 		callback.call(id);
 		System.out.println(getClass().getName() + ": " + me + ", callback effectué. Fin du Thread.");
