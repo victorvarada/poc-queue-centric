@@ -5,9 +5,6 @@ public class Task {
 	private String workDetail;
 	private long delay;
 	
-	
-	public Task(){
-	}
 	public Task(JobTypes jobtype, String workDetail, long delay) {
 		this.jobtype = jobtype;
 		this.workDetail = workDetail;

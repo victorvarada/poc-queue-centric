@@ -2,18 +2,18 @@ package org.sales.pds.poc.poc_queue_centric.worker;
 
 import java.util.UUID;
 
-import org.sales.pds.poc.poc_queue_centric.consumer.ICustomCallback;
 import org.sales.pds.poc.poc_queue_centric.entity.Task;
+import org.sales.pds.poc.poc_queue_centric.interfaces.ITaskCallback;
 
 public class Worker extends Thread {
 	private Task task;
 	private boolean available;
-	private ICustomCallback callback;
+	private ITaskCallback callback;
 	private long id;
 	private UUID me;
 	private int jobDuration = 10000;
 	
-	public Worker(ICustomCallback callback) {
+	public Worker(ITaskCallback callback) {
 		this.setCallback(callback);
 		me = UUID.randomUUID();
 	}
@@ -51,11 +51,11 @@ public class Worker extends Thread {
 		this.available = available;
 	}
 
-	public ICustomCallback getCallback() {
+	public ITaskCallback getCallback() {
 		return callback;
 	}
 
-	public void setCallback(ICustomCallback callback) {
+	public void setCallback(ITaskCallback callback) {
 		this.callback = callback;
 	}
 

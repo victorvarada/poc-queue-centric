@@ -15,7 +15,7 @@
 		</servlet-class>
 		<init-param>
 			<param-name>javax.ws.rs.Application</param-name>
-			<param-value>org.sales.pds.poc.poc_queue_centric.BootstrapApplication</param-value>
+			<param-value>org.sales.pds.poc.poc_queue_centric.bootstrap.BootstrapRESTService</param-value>
 		</init-param>
 	</servlet>
 
