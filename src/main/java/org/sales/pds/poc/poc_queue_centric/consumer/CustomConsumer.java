@@ -29,7 +29,6 @@ public class CustomConsumer extends Thread implements ICustomCallback, ICustomCo
 				e.printStackTrace();
 			}
 		}
-		return;
 	}
 
 	public void run() {
