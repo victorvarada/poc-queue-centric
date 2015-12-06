@@ -6,19 +6,18 @@ import org.sales.pds.poc.poc_queue_centric.interfaces.ITaskCallback;
 import org.sales.pds.poc.poc_queue_centric.interfaces.RemoteWorker;
 
 public class TaskHandler extends Thread {
-	RemoteWorker w;
+	RemoteWorker remoteWorkerw;
 	ITaskCallback callback;
 
 	public TaskHandler(RemoteWorker w, ITaskCallback callback) {
-		this.w = w;
+		this.remoteWorkerw = w;
 		this.callback = callback;
 	}
 
 	public void run() {
 		try {
-			this.w.doJob(this.callback);
+			this.remoteWorkerw.doJob(this.callback);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
