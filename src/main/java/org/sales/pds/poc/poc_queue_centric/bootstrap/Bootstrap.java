@@ -6,7 +6,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.sales.pds.poc.poc_queue_centric.consumer.CustomConsumer;
+import org.sales.pds.poc.poc_queue_centric.consumer.TaskConsumer;
 import org.sales.pds.poc.poc_queue_centric.entity.JobTypes;
 import org.sales.pds.poc.poc_queue_centric.entity.Task;
 import org.sales.pds.poc.poc_queue_centric.proxy.TaskProducer;
@@ -21,7 +21,7 @@ public class Bootstrap implements ServletContextListener {
 	
 	private CustomQueue customQueue;
 	private QueueManager queueManager;
-	private CustomConsumer customConsumer;
+	private TaskConsumer customConsumer;
 	
 	/**
 	 * start the simulation<br>
@@ -35,8 +35,8 @@ public class Bootstrap implements ServletContextListener {
 		queueManager = new QueueManager(customQueue);
 		
 		//init the consumer
-		customConsumer = new CustomConsumer();
-		customConsumer.setTaskScheduler(queueManager);
+		customConsumer = new TaskConsumer();
+		customConsumer.setQueueManager(queueManager);
 		
 		//simulateTaskSubmissions();
 	}

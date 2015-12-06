@@ -11,10 +11,11 @@ import org.slf4j.LoggerFactory;
 
 public class CustomQueue {
 	private static Logger logger = LoggerFactory.getLogger(CustomQueue.class);
+	
 	private static long nextId = 1;
-	private Queue<TaskWrapper> queue;
-	private Map<Long, TaskWrapper> taskMap;
+	private DelayQueue<TaskWrapper> queue;
 	private QueueInfo queueInfo;
+	private Map<Long, TaskWrapper> taskMap;
 	
 	public CustomQueue() {
 		taskMap = new ConcurrentHashMap<Long, TaskWrapper>();
@@ -24,15 +25,28 @@ public class CustomQueue {
 	
 	public void addTask(Task t) {
 		TaskWrapper taskWrapper = new TaskWrapper(t);
-		queue.add(taskWrapper);
+		queue.offer(taskWrapper);
 		taskMap.put(taskWrapper.getId(), taskWrapper);
 		
 		updateQueueInfo();
 	}
 	
-	public void removeTask(long id) {
+	public void removeTaskFromMap(long id) {
 		taskMap.remove(taskMap.get(id));
 		updateQueueInfo();
+	}
+	
+	public TaskWrapper getNextTask() {
+		TaskWrapper taskWrapper;
+		
+		try {
+			 taskWrapper = queue.take();
+			 return taskWrapper;
+		} catch (InterruptedException e) {
+			logger.warn(e.getStackTrace().toString());
+		}
+		
+		return null;
 	}
 	
 	private void updateQueueInfo() {
@@ -67,4 +81,26 @@ public class CustomQueue {
 	public static void setNextId(long nextId) {
 		CustomQueue.nextId = nextId;
 	}
+
+	public DelayQueue<TaskWrapper> getQueue() {
+		return queue;
+	}
+
+	public void setQueue(DelayQueue<TaskWrapper> queue) {
+		this.queue = queue;
+	}
+
+	public QueueInfo getQueueInfo() {
+		return queueInfo;
+	}
+
+	public void setQueueInfo(QueueInfo queueInfo) {
+		this.queueInfo = queueInfo;
+	}
+
+	public void setTaskMap(Map<Long, TaskWrapper> taskMap) {
+		this.taskMap = taskMap;
+	}
+	
+	
 }

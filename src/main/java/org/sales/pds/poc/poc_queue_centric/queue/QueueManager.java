@@ -8,7 +8,6 @@ public class QueueManager {
 	public QueueManager(){
 	}
 	public QueueManager(CustomQueue managedQueue) {
-		super();
 		this.managedQueue = managedQueue;
 	}
 
@@ -25,7 +24,7 @@ public class QueueManager {
 	}
 
 	public void endTask(long id) {
-		managedQueue.removeTask(id);
+		managedQueue.removeTaskFromMap(id);
 	}
 	
 	public CustomQueue getCustomQueue() {

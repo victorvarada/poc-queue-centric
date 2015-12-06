@@ -29,7 +29,7 @@ public class TaskProducer {
 
 	public void submitTask(Task task) {
 		if (task != null) {
-			logger.info("i submit task in queue");
+			logger.info("i submit a task in queue");
 			customQueue.addTask(task);
 		} else {
 			throw new NullPointerException();
