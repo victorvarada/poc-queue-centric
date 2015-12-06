@@ -19,7 +19,7 @@ public class TaskConsumer implements Runnable, ITaskCallback, ITaskConsumer {
 	private Logger logger = LoggerFactory.getLogger(TaskConsumer.class);
 	private Registry registry;
 	private QueueManager queueManager;
-	private int nbAvailableWorker;
+	private volatile int nbAvailableWorker;
 	private int checkTick;
 	private int cbkPort;
 
@@ -95,6 +95,7 @@ public class TaskConsumer implements Runnable, ITaskCallback, ITaskConsumer {
 			for (String name : workerNames) {
 				w = (RemoteWorker) registry.lookup(name);
 				if (w.isAvailable() == true) {
+					w.setBusy();
 					w.setTask(task);
 					w.setId(id);
 					TaskHandler jh = new TaskHandler(w, this);

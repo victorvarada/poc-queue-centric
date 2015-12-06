@@ -32,7 +32,6 @@ public class Worker extends UnicastRemoteObject implements Runnable, RemoteWorke
 	}
 
 	public void doJob(ITaskCallback callback) {
-		setAvailable(false);
 		logger.info(me + ", je commence: " + task.getJobtype() + " - " + task.getWorkDetail());
 		try {
 			Thread.sleep(jobDuration);
@@ -97,5 +96,10 @@ public class Worker extends UnicastRemoteObject implements Runnable, RemoteWorke
 
 	public void setId(long id) {
 		this.id = id;
+	}
+
+	@Override
+	public void setBusy() throws RemoteException {
+		this.available = false;
 	}
 }

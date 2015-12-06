@@ -10,4 +10,5 @@ public interface RemoteWorker extends Remote {
 	public boolean isAvailable() throws RemoteException;
 	public void setTask(Task task) throws RemoteException;
 	public void setId(long id) throws RemoteException;
+	public void setBusy() throws RemoteException;
 }
