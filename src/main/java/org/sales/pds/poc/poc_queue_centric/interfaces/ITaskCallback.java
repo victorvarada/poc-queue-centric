@@ -1,5 +1,8 @@
 package org.sales.pds.poc.poc_queue_centric.interfaces;
 
-public interface ITaskCallback {
-	public void call(long id);
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+
+public interface ITaskCallback extends Remote {
+	public void call(long id) throws RemoteException;
 }

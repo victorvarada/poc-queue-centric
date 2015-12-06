@@ -29,12 +29,20 @@ public class Bootstrap implements ServletContextListener {
 	public void contextInitialized(ServletContextEvent event) {
 		queueManager = QueueManager.getInstance();
 		
-		TaskConsumer taskConsumer = new TaskConsumer(queueManager);
-		taskConsumer.start();
+		TaskConsumer taskConsumer = null;
+		try {
+			taskConsumer = new TaskConsumer(queueManager);
+			new Thread(taskConsumer).start();
+		} catch (RemoteException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return;
+		}
 		queueManager.setConsumer(taskConsumer);
+				
 		Worker worker;
 		try {
-			worker = new Worker(taskConsumer);
+			worker = new Worker();
 			new Thread(worker).start();
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block

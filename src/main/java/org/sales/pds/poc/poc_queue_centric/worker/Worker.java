@@ -24,13 +24,13 @@ public class Worker extends UnicastRemoteObject implements Runnable, RemoteWorke
 	private UUID me;
 	private int jobDuration = 10000;
 	
-	public Worker(ITaskCallback callback) throws RemoteException {
+	public Worker() throws RemoteException {
 		this.setCallback(callback);
 		me = UUID.randomUUID();
 		available = true;
 	}
-	
-	public void doJob() {
+
+	public void doJob(ITaskCallback callback) {
 		setAvailable(false);
 		logger.info(me + ", je commence: " + task.getJobtype() + " - " + task.getWorkDetail());
 		try {
@@ -41,7 +41,12 @@ public class Worker extends UnicastRemoteObject implements Runnable, RemoteWorke
 		}
 		logger.info(me + ", j'ai fini ma tache.");
 		// FIXME: callback marche pas
-		callback.call(id);
+		try {
+			callback.call(id);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		logger.info(me + ", callback effectue.");
 		setAvailable(true);
 	}

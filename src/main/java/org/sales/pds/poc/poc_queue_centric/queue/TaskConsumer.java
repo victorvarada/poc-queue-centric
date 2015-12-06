@@ -12,14 +12,14 @@ import org.sales.pds.poc.poc_queue_centric.worker.RemoteWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TaskConsumer extends Thread implements ITaskCallback, ITaskConsumer {
+public class TaskConsumer implements Runnable, ITaskCallback, ITaskConsumer {
 	private Logger logger = LoggerFactory.getLogger(TaskConsumer.class);
 	private Registry registry;
 	private QueueManager queueManager;
 	private int nbAvailableWorker;
 	private int checkTick;
 
-	public TaskConsumer(QueueManager queueManager) {
+	public TaskConsumer(QueueManager queueManager) throws RemoteException {
 		this.queueManager = queueManager;
 		this.nbAvailableWorker = 1;
 		this.checkTick = 3000;
@@ -31,7 +31,7 @@ public class TaskConsumer extends Thread implements ITaskCallback, ITaskConsumer
 		}
 	}
 
-	public TaskConsumer(QueueManager queueManager, int nbAvailableWorker, int fakeTaskLonger) {
+	public TaskConsumer(QueueManager queueManager, int nbAvailableWorker, int fakeTaskLonger) throws RemoteException {
 		this.queueManager = queueManager;
 		this.nbAvailableWorker = nbAvailableWorker;
 		this.checkTick = fakeTaskLonger;
@@ -55,7 +55,7 @@ public class TaskConsumer extends Thread implements ITaskCallback, ITaskConsumer
 			} else {
 				logger.info("No worker available, i'm sleeping for " + checkTick + "ms");
 				try {
-					sleep(checkTick);
+					Thread.sleep(checkTick);
 				} catch (InterruptedException e) {
 					logger.warn(e.getStackTrace().toString());
 				}
@@ -64,6 +64,7 @@ public class TaskConsumer extends Thread implements ITaskCallback, ITaskConsumer
 	}
 
 	public synchronized void call(long id) {
+		System.out.println("GOT CALLED");
 		queueManager.removeTaskFromMap(id);
 		nbAvailableWorker++;
 	}
@@ -79,7 +80,7 @@ public class TaskConsumer extends Thread implements ITaskCallback, ITaskConsumer
 				if (w.isAvailable() == true) {
 					w.setTask(task);
 					w.setId(id);
-					w.doJob();
+					w.doJob(this);
 					nbAvailableWorker--;
 					return;
 				}
