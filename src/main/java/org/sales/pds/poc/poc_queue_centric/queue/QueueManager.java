@@ -42,8 +42,9 @@ public class QueueManager {
 		producers = new ArrayList<TaskProducer>();
 	}
 
-	public void addTask(Task t) {
+	public synchronized void addTask(Task t) {
 		TaskWrapper taskWrapper = new TaskWrapper(t);
+		taskWrapper.setId(nextId++);
 		queue.offer(taskWrapper);
 		taskMap.put(taskWrapper.getId(), taskWrapper);
 
@@ -60,6 +61,7 @@ public class QueueManager {
 
 		try {
 			taskWrapper = queue.take();
+			taskWrapper.setRunning(true);
 			return taskWrapper;
 		} catch (InterruptedException e) {
 			logger.warn(e.getStackTrace().toString());
