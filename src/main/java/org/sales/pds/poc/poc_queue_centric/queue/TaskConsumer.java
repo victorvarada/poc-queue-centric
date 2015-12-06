@@ -1,28 +1,38 @@
 package org.sales.pds.poc.poc_queue_centric.queue;
 
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
 import org.sales.pds.poc.poc_queue_centric.entity.Task;
 import org.sales.pds.poc.poc_queue_centric.interfaces.ITaskCallback;
 import org.sales.pds.poc.poc_queue_centric.interfaces.ITaskConsumer;
-import org.sales.pds.poc.poc_queue_centric.worker.Worker;
+import org.sales.pds.poc.poc_queue_centric.worker.RemoteWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TaskConsumer extends Thread implements ITaskCallback, ITaskConsumer {
 	private Logger logger = LoggerFactory.getLogger(TaskConsumer.class);
-	
-	private QueueManager customQueue;
+	private Registry registry;
+	private QueueManager queueManager;
 	private int nbAvailableWorker;
 	private int checkTick;
 
-		
-	public TaskConsumer(QueueManager customQueue) {
-		this.customQueue = customQueue;
-		this.nbAvailableWorker = 4;
+	public TaskConsumer(QueueManager queueManager) {
+		this.queueManager = queueManager;
+		this.nbAvailableWorker = 1;
 		this.checkTick = 3000;
+		try {
+			setRegistry(LocateRegistry.createRegistry(1099));
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public TaskConsumer(QueueManager customQueue, int nbAvailableWorker, int fakeTaskLonger) {
-		this.customQueue = customQueue;
+	public TaskConsumer(QueueManager queueManager, int nbAvailableWorker, int fakeTaskLonger) {
+		this.queueManager = queueManager;
 		this.nbAvailableWorker = nbAvailableWorker;
 		this.checkTick = fakeTaskLonger;
 	}
@@ -31,18 +41,19 @@ public class TaskConsumer extends Thread implements ITaskCallback, ITaskConsumer
 	 * take a task and assign it to a worker
 	 */
 	public void consume() {
-		TaskWrapper taskWrapper = customQueue.getNextTask();
-		
-		//TODO QGd: refactor assignTask() method give the TaskWrapper directly as param
+		TaskWrapper taskWrapper = queueManager.getNextTask();
+
+		// TODO QGd: refactor assignTask() method give the TaskWrapper directly
+		// as param
 		assignTask(taskWrapper.getId(), taskWrapper.getTask());
 	}
 
 	public void run() {
 		while (true) {
-			if ( TaskConsumer.this.nbAvailableWorker > 0) {
+			if (this.nbAvailableWorker > 0) {
 				consume();
 			} else {
-				logger.info("Any worker available, i'm sleeping");
+				logger.info("No worker available, i'm sleeping for " + checkTick + "ms");
 				try {
 					sleep(checkTick);
 				} catch (InterruptedException e) {
@@ -53,16 +64,38 @@ public class TaskConsumer extends Thread implements ITaskCallback, ITaskConsumer
 	}
 
 	public synchronized void call(long id) {
-		customQueue.removeTaskFromMap(id);
+		queueManager.removeTaskFromMap(id);
 		nbAvailableWorker++;
 	}
 
 	private synchronized void assignTask(long id, Task task) {
-		nbAvailableWorker--;
-		Worker w = new Worker(this);
-		w.setTask(task);
-		w.setId(id);
-		w.start();
+		RemoteWorker w;
+		String[] workerNames = null;
+		try {
+			workerNames = registry.list();
+			for (String name : workerNames) {
+				System.out.println(name);
+				w = (RemoteWorker) registry.lookup(name);
+				if (w.isAvailable() == true) {
+					w.setTask(task);
+					w.setId(id);
+					w.doJob();
+					nbAvailableWorker--;
+					return;
+				}
+			}
+		} catch (RemoteException | NotBoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public Registry getRegistry() {
+		return registry;
+	}
+
+	public void setRegistry(Registry registry) {
+		this.registry = registry;
 	}
 
 }

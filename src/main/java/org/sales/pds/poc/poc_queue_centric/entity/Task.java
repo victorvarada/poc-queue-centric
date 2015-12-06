@@ -1,6 +1,12 @@
 package org.sales.pds.poc.poc_queue_centric.entity;
 
-public class Task {
+import java.io.Serializable;
+
+public class Task implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JobTypes jobtype;
 	private String workDetail;
 	private long delay;

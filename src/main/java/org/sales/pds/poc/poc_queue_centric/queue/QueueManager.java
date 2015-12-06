@@ -1,9 +1,6 @@
 package org.sales.pds.poc.poc_queue_centric.queue;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.DelayQueue;
 
@@ -19,8 +16,8 @@ public class QueueManager {
 	private DelayQueue<TaskWrapper> queue;
 	private QueueInfo queueInfo;
 	private Map<Long, TaskWrapper> taskMap;
-	private List<TaskConsumer> consumers;
-	private List<TaskProducer> producers;
+	private TaskConsumer consumer;
+	private TaskProducer producer;
 	
 
 	public static synchronized QueueManager getInstance(){
@@ -37,9 +34,6 @@ public class QueueManager {
 		taskMap = new ConcurrentHashMap<Long, TaskWrapper>();
 		queue = new DelayQueue<TaskWrapper>();
 		queueInfo = new QueueInfo();
-		
-		consumers = new ArrayList<TaskConsumer>();
-		producers = new ArrayList<TaskProducer>();
 	}
 
 	public synchronized void addTask(Task t) {
@@ -52,7 +46,7 @@ public class QueueManager {
 	}
 
 	public void removeTaskFromMap(long id) {
-		taskMap.remove(taskMap.get(id));
+		taskMap.remove(id);
 		updateQueueInfo();
 	}
 
@@ -123,12 +117,20 @@ public class QueueManager {
 		this.taskMap = taskMap;
 	}
 
-	public List<TaskConsumer> getConsumers() {
-		return consumers;
+	public TaskConsumer getConsumer() {
+		return consumer;
 	}
 
-	public List<TaskProducer> getProducers() {
-		return producers;
+	public void setConsumer(TaskConsumer consumer) {
+		this.consumer = consumer;
+	}
+
+	public TaskProducer getProducer() {
+		return producer;
+	}
+
+	public void setProducer(TaskProducer producer) {
+		this.producer = producer;
 	}
 	
 }

@@ -11,7 +11,6 @@ import javax.ws.rs.core.Response;
 import org.sales.pds.poc.poc_queue_centric.entity.JobTypes;
 import org.sales.pds.poc.poc_queue_centric.entity.Task;
 import org.sales.pds.poc.poc_queue_centric.queue.QueueManager;
-import org.sales.pds.poc.poc_queue_centric.queue.TaskConsumer;
 import org.sales.pds.poc.poc_queue_centric.queue.TaskProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,7 @@ public class RestService {
 		String result = "Task submitted";
 		
 		QueueManager queueManager = QueueManager.getInstance();
-		TaskProducer taskProducer = queueManager.getProducers().get(0);
+		TaskProducer taskProducer = queueManager.getProducer();
 		
 		taskProducer.submitTask(task);
 		logger.info("rest : task submitted");
@@ -54,7 +53,7 @@ public class RestService {
 		@Override
 		public void run() {
 			QueueManager queueManager = QueueManager.getInstance();
-			TaskProducer taskProducer = queueManager.getProducers().get(0);
+			TaskProducer taskProducer = queueManager.getProducer();
 			
 			while (true) {
 				Task task = new Task(JobTypes.NotifyJob, "Notifier Tartempion de rappeler le client Dupont.", 0);
@@ -64,7 +63,7 @@ public class RestService {
 				 * wait randomly between 5sec and 8sec before re-submit 
 				 */
 				try {
-					Thread.sleep(5000 + new Random().nextInt(3000));
+					Thread.sleep(500 + new Random().nextInt(3000));
 				} catch (InterruptedException e) {
 					logger.warn(e.getStackTrace().toString());
 				}
