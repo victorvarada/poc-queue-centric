@@ -14,8 +14,8 @@ public class TaskProducer {
 
 	private QueueManager queueManager;
 
-	public TaskProducer(QueueManager customQueue) {
-		this.queueManager = customQueue;
+	public TaskProducer(QueueManager queueManager) {
+		this.queueManager = queueManager;
 	}
 
 	public QueueManager getQueueManager() {

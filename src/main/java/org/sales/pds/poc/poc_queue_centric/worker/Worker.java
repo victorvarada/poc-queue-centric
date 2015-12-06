@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.sales.pds.poc.poc_queue_centric.entity.Task;
 import org.sales.pds.poc.poc_queue_centric.interfaces.ITaskCallback;
+import org.sales.pds.poc.poc_queue_centric.interfaces.RemoteWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
