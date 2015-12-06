@@ -1,22 +1,24 @@
 package org.sales.pds.poc.poc_queue_centric.consumer;
 
 import org.sales.pds.poc.poc_queue_centric.entity.Task;
-import org.sales.pds.poc.poc_queue_centric.queue.TaskContainer;
-import org.sales.pds.poc.poc_queue_centric.queue.TaskScheduler;
+import org.sales.pds.poc.poc_queue_centric.queue.TaskWrapper;
+import org.sales.pds.poc.poc_queue_centric.queue.QueueManager;
 import org.sales.pds.poc.poc_queue_centric.worker.Worker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomConsumer extends Thread implements ICustomCallback, ICustomConsumer<Task> {
-	// FIXME: Remplacer l'objet TaskScheduler par son URL et faire un appel REST pour avoir la prochaine t�che
-	private TaskScheduler taskScheduler;
-	// FIXME: Upgrade availableWorker par un ThreadPoolExecutor
+	private Logger logger = LoggerFactory.getLogger(CustomConsumer.class);
+	
+	private QueueManager taskScheduler;
 	private int availableWorker = 4;
 	private int checkTick = 3000;
 
 	/**
-	 * Prend une t�che en attente et l'assigne � un worker.
+	 * take a task and assign it to a worker
 	 */
 	public void consume() {
-		TaskContainer taskContainer = taskScheduler.getNextTask();
+		TaskWrapper taskContainer = taskScheduler.getNextTask();
 		if (taskContainer != null) {
 			System.out.println(getClass().getName() + ": t�che en attente � attribuer.");
 			assignTask(taskContainer.getId(), taskContainer.getTask());
@@ -36,12 +38,11 @@ public class CustomConsumer extends Thread implements ICustomCallback, ICustomCo
 			if ( CustomConsumer.this.availableWorker > 0) {
 				consume();
 			} else {
-				System.out.println(getClass().getName() + ": Pas de worker disponible. Sleeping.");
+				logger.info("Any worker available, i'm sleeping");
 				try {
 					sleep(checkTick);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.warn(e.getStackTrace().toString());
 				}
 			}
 		}
@@ -53,12 +54,11 @@ public class CustomConsumer extends Thread implements ICustomCallback, ICustomCo
 	}
 
 	/**
-	 * Assigne la t�che � un worker et lance le job
+	 * assign task and start the worker
 	 * 
 	 * @param id
-	 *            L'identifiant de t�che du TaskContainer
 	 * @param task
-	 *            La t�che
+	 * 
 	 */
 	private void assignTask(long id, Task task) {
 		Worker w = new Worker(this);
@@ -68,7 +68,7 @@ public class CustomConsumer extends Thread implements ICustomCallback, ICustomCo
 		availableWorker--;
 	}
 
-	public TaskScheduler getTaskScheduler() {
+	public QueueManager getTaskScheduler() {
 		return taskScheduler;
 	}
 
@@ -77,7 +77,7 @@ public class CustomConsumer extends Thread implements ICustomCallback, ICustomCo
 	 * 
 	 * @param taskScheduler
 	 */
-	public void setTaskScheduler(TaskScheduler taskScheduler) {
+	public void setTaskScheduler(QueueManager taskScheduler) {
 		this.taskScheduler = taskScheduler;
 	}
 

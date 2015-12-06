@@ -1,75 +1,70 @@
 package org.sales.pds.poc.poc_queue_centric.queue;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.DelayQueue;
 
 import org.sales.pds.poc.poc_queue_centric.entity.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CustomQueue {
-	static long nextId = 1;
-	List<TaskContainer> taskContainers = null;
+	private static Logger logger = LoggerFactory.getLogger(CustomQueue.class);
+	private static long nextId = 1;
+	private Queue<TaskWrapper> queue;
+	private Map<Long, TaskWrapper> taskMap;
+	private QueueInfo queueInfo;
 	
 	public CustomQueue() {
-		taskContainers = new ArrayList<TaskContainer>();
+		taskMap = new ConcurrentHashMap<Long, TaskWrapper>();
+		queue = new DelayQueue<TaskWrapper>();
+		queueInfo = new QueueInfo();
 	}
 	
-	/**
-	 * Place la t�che en file d'attente et lui attribue un id unique,
-	 * FIXME: Remplacer l'ajout de t�che par un WS REST
-	 * @param t
-	 */
 	public void addTask(Task t) {
-		TaskContainer tc = new TaskContainer();
-		tc.setId(nextId++);
-		tc.setTask(t);
-		tc.setRunning(false);
-		taskContainers.add(tc);
-		System.out.println(getClass().getName() + ": nouvelle t�che en file d'attente. Taille file = " + printQueueDetails());
+		TaskWrapper taskWrapper = new TaskWrapper(t);
+		queue.add(taskWrapper);
+		taskMap.put(taskWrapper.getId(), taskWrapper);
+		
+		updateQueueInfo();
 	}
 	
-	private String printQueueDetails() {
+	public void removeTask(long id) {
+		taskMap.remove(taskMap.get(id));
+		updateQueueInfo();
+	}
+	
+	private void updateQueueInfo() {
 		int inProgress = 0;
 		int awaiting = 0;
 		
-		for (TaskContainer tc : taskContainers) {
-			if (tc.isRunning() == true)
+		for (TaskWrapper taskWrapper : taskMap.values()) {
+			if (taskWrapper.isRunning())
 				inProgress++;
 			else
 				awaiting++;
 		}
 		
-		String details = new String("[Awaiting = " +awaiting+ ", InProgress = " +inProgress+ "]");
-		return details;
+		queueInfo.setAwaiting(awaiting);
+		queueInfo.setInProgress(inProgress);
+		
+		logger.info("Queue info {} ", queueInfo.toString());
 	}
 
-	/**
-	 * Marque une t�che comme �tant en cours d'ex�cution
-	 * @param id
-	 */
 	public void setTaskIsRunning(long id) {
-		for (TaskContainer tc : taskContainers) {
-			if (tc.getId() == id) {
-				tc.setRunning(true);
-				return;
-			}
-		}
+		taskMap.get(id).setRunning(true);
 	}
 	
-	public List<TaskContainer> getTaskContainers() {
-		return taskContainers;
+	public Map<Long, TaskWrapper> getTaskMap() {
+		return taskMap;
 	}
-	
-	/**
-	 * Retirer un t�che termin�e de la file
-	 * @param id
-	 */
-	public void endTask(long id) {
-		for (TaskContainer tc : taskContainers) {
-			if (tc.getId() == id) {
-				taskContainers.remove(tc);
-				System.out.println(getClass().getName() + ": t�che termin�e. Taille file = " + printQueueDetails());
-				return;
-			}
-		}
+
+	public static long getNextId() {
+		return nextId;
+	}
+
+	public static void setNextId(long nextId) {
+		CustomQueue.nextId = nextId;
 	}
 }
